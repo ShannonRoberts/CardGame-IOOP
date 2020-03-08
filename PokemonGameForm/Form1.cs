@@ -1,0 +1,1231 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;   
+
+namespace PokemonGameForm
+{
+    public partial class Form1 : Form
+    {
+        Graphics canvas;
+        Deck cardDeck;
+        Team playerTeam;
+        Team computerTeam;
+        Battle aBattle;
+        Score playerScore;
+        HighScore hs;
+        Name n;
+        GameRules gr = new GameRules();
+        
+        private int timerTick = 0; //measures timer
+        private bool stopped = false; // used to stop interface error occuring when you stop a game then click new game and answer no
+        int noCardClick;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void startButton_Click(object sender, EventArgs e)
+        {
+            cardDeck = new Deck(30);
+            playerTeam = new Team();
+            computerTeam = new Team();
+            aBattle = new Battle();
+            playerScore = new Score(0,"h");
+            n = new Name();
+            hs = new HighScore();
+
+
+            //Fire Types
+            Card charmander = new Card(canvas, "charmander", "fire", 70, 18, "ember", 28, 5);
+            Card growlithe = new Card(canvas, "growlithe", "fire", 80, 18, "combustion", 30, 5);
+            Card ninetales = new Card(canvas, "ninetales", "fire", 85, 22, "fire blast", 35, 3);
+            Card magby = new Card(canvas, "magby", "fire", 60, 18, "ignite", 25, 6);
+            Card quilava = new Card(canvas, "quilava", "fire", 80, 20, "flamethrower", 33, 4);
+            Card ponyta = new Card(canvas, "ponyta", "fire", 60, 15, "flame tail", 24, 7);
+            Card houndoom = new Card(canvas, "houndoom", "fire", 85, 30, "Fire Fang", 40, 3);
+            Card torchic = new Card(canvas, "torchic", "fire", 65, 20, "Singe", 30, 5);
+            Card infernape = new Card(canvas, "infernape", "fire", 70, 22, "Fire Wheel", 35, 4);
+            Card torkoal = new Card(canvas, "torkoal", "fire", 95, 15, "Heat Blast", 25, 5);
+
+            //Water Types
+            Card squirtle = new Card(canvas, "squirtle", "water", 80, 20, "Water Gun", 28, 7);
+            Card psyduck = new Card(canvas, "psyduck", "water", 70, 15, "Headache", 25, 8);
+            Card poliwrath = new Card(canvas, "poliwrath", "water", 70, 25, "Whirlpool", 40, 2);
+            Card slowbro = new Card(canvas, "slowbro", "water", 80, 18, "Rolling Takle", 28, 4);
+            Card seel = new Card(canvas, "seel", "water", 65, 15, "Icy Snow", 25, 8);
+            Card totodile = new Card(canvas, "totodile", "water", 70, 20, "Bite", 30, 7);
+            Card mudkip = new Card(canvas, "mudkip", "water", 60, 25, "Mudslap", 30, 5);
+            Card crawdaunt = new Card(canvas, "crawduant", "water", 75, 30, "Bubble", 40, 2);
+            Card floatzel = new Card(canvas, "floatzel", "water", 70, 30, "Waterfall", 35, 3);
+            Card magikarp = new Card(canvas, "magikarp", "water", 65, 10, "Spalsh", 20, 3);
+
+            //Grass Types
+            Card bulbasuar = new Card(canvas, "bulbasuar", "grass", 75, 20, "Vine Whip", 35, 5);
+            Card treecko = new Card(canvas, "treecko", "grass", 65, 18, "Razor Leaf", 38, 5);
+            Card bayleef = new Card(canvas, "bayleef", "grass", 80, 22, "Body Slam", 28, 8);
+            Card leafeon = new Card(canvas, "leafeon", "grass", 90, 25, "Leaf Blade", 33, 3);
+            Card bellsprout = new Card(canvas, "bellsprout", "grass", 60, 18, "Giga Drain", 24, 6);
+            Card seperior = new Card(canvas, "seperior", "grass", 70, 30, "Leaf Storm", 45, 2);
+            Card seedot = new Card(canvas, "seedot", "grass", 50, 15, "Double Spin", 24, 8);
+            Card decidueye = new Card(canvas, "decidueye", "grass", 65, 30, "Feather Arrow", 50, 1);
+            Card chespin = new Card(canvas, "chespin", "grass", 60, 20, "Seed Bomb", 35, 5);
+            Card exeggutor = new Card(canvas, "exeggutor", "grass", 70, 18, "Stomp", 25, 4);
+
+            cardDeck.addCard(charmander);
+            cardDeck.addCard(growlithe);
+            cardDeck.addCard(ninetales);
+            cardDeck.addCard(magby);
+            cardDeck.addCard(quilava);
+            cardDeck.addCard(ponyta);
+            cardDeck.addCard(houndoom);
+            cardDeck.addCard(torchic);
+            cardDeck.addCard(infernape);
+            cardDeck.addCard(torkoal);
+            cardDeck.addCard(squirtle);
+            cardDeck.addCard(psyduck);
+            cardDeck.addCard(poliwrath);
+            cardDeck.addCard(slowbro);
+            cardDeck.addCard(seel);
+            cardDeck.addCard(totodile);
+            cardDeck.addCard(mudkip);
+            cardDeck.addCard(crawdaunt);
+            cardDeck.addCard(floatzel);
+            cardDeck.addCard(magikarp);
+            cardDeck.addCard(bulbasuar);
+            cardDeck.addCard(treecko);
+            cardDeck.addCard(bayleef);
+            cardDeck.addCard(leafeon);
+            cardDeck.addCard(bellsprout);
+            cardDeck.addCard(seperior);
+            cardDeck.addCard(seedot);
+            cardDeck.addCard(decidueye);
+            cardDeck.addCard(chespin);
+            cardDeck.addCard(exeggutor);
+
+            cardDeck.shuffleCards();
+            cardDeck.dealCards(playerTeam.getTeamCards());
+            cardDeck.dealCards(computerTeam.getTeamCards());
+            playerTeam.showTeam();
+            computerTeam.nextComputer();
+            
+            alterInterface(true);
+            startButton.Visible = false;
+            timer.Start();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            canvas = battlefieldPictureBox.CreateGraphics();
+
+        }
+
+        private void battlefieldPictureBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (startButton.Visible == false)
+            {
+                noCardClick = 0;
+                
+                Card[] cards = playerTeam.getTeamCards();
+                for (int index = 0; index < 6; index++)
+                {
+                    
+                    if (cards[index] != null)
+                    {
+                        if (cards[index].Space.Contains(e.Location) && cards[index].getAvailable())
+                        {
+
+                            cards[index].setIsPlayed(true);
+                            update();
+
+                        }
+                        
+                        else
+                        {
+                            cards[index].setIsPlayed(false);
+                            noCardClick++;
+                        }
+
+                        cards[index].show();
+
+                    }
+
+                }
+                if (noCardClick == 6) //used to remove the graphics of card in play when a click occurs in empty space.
+                {
+                    emptyPCardSpace();
+
+                }
+
+            }
+        }
+
+        private void baseAttackButton_Click(object sender, EventArgs e) 
+        {
+            cardAttack("basic");
+            checkGame();
+            emptyPCardSpace();
+        }
+
+        private void specialAttackButton_Click(object sender, EventArgs e) 
+        {
+            cardAttack("special");
+            checkGame();
+            emptyPCardSpace();
+        }
+
+        private void emptyPCardSpace() // makes the played card area blank
+        {
+            if (playerTeam.selectPlayerCard() != null)
+            {
+                if (playerTeam.selectPlayerCard().getPokemonHealth() == 0)
+                {
+                    canvas.FillRectangle(Brushes.SkyBlue, 400, 260, 160, 240);
+                    playerHealthLabel.Text = "Health : ";
+                    playerUsesLabel.Text = "Special Uses Left : ";
+                    playerTeam.showTeam();
+                }
+            }
+            else if (noCardClick == 6)
+            {
+                canvas.FillRectangle(Brushes.SkyBlue, 400, 260, 160, 240);
+                playerHealthLabel.Text = "Health : ";
+                playerUsesLabel.Text = "Special Uses Left : ";
+                
+            }
+        }
+
+        private void cardAttack(string typeOfAttack)
+        {
+            Card playerCard = playerTeam.selectPlayerCard();
+            Card computerCard = computerTeam.selectComputerCard();
+
+            if (checkAttackOrder(playerCard, computerCard))
+            {
+                aBattle.damageTaken(typeOfAttack, playerCard, computerCard);
+                update();
+                playerTeam.showTeam();
+                computerTeam.nextComputer();
+                if (checkHealth(playerCard, computerCard) == "bothAlive")
+                {
+                    aBattle.damageTaken(typeOfAttack, computerCard, playerCard);
+                    update();
+                    playerTeam.showTeam();
+                    computerTeam.nextComputer();
+                    if(checkHealth(playerCard, computerCard) == "playerKO")
+                    {
+                        playerCard.setAvailable(false);
+                    }
+                }
+                else if(checkHealth(playerCard, computerCard) == "computerKO")
+                {
+                    computerCard.setAvailable(false);
+                    addKOScore(playerCard, computerCard);
+                    
+                }
+            }
+            else
+            {
+                aBattle.damageTaken(typeOfAttack, computerCard, playerCard);
+                update();
+                playerTeam.showTeam();
+                computerTeam.nextComputer();
+                if (checkHealth(playerCard, computerCard) == "bothAlive")
+                {
+                    aBattle.damageTaken(typeOfAttack, playerCard, computerCard);
+                    update();
+                    playerTeam.showTeam();
+                    computerTeam.nextComputer();
+                    if(checkHealth(playerCard, computerCard) == "computerKO")
+                    {
+                        computerCard.setAvailable(false);
+                        addKOScore(playerCard, computerCard);
+                    }
+                }
+                else if(checkHealth(playerCard, computerCard) == "playerKO")
+                {
+                    playerCard.setAvailable(false);
+                }
+            }
+        }
+
+        private void addKOScore(Card playerCard, Card computerCard)
+        {
+            int score = playerScore.getScore();
+
+            if (aBattle.checkAdvantage(playerCard, computerCard))
+            {
+                playerScore.setScore(score + 150);
+            }
+            else
+            {
+                playerScore.setScore(score + 100);
+            }
+            update();
+        }
+
+        private string checkHealth(Card playerCard, Card computerCard) //I used a string so when i use it in the cardAttack method it is easier to read
+        {
+
+            if (computerCard.getPokemonHealth() != 0 && playerCard.getPokemonHealth() != 0)
+            {
+                return "bothAlive";
+            }
+            else if (computerCard.getPokemonHealth() == 0)
+            {
+                return "computerKO";
+            }
+            else
+            {
+                return "playerKO";
+            }
+
+        }
+
+        private bool checkAttackOrder(Card playerCard, Card computerCard)
+        {
+            if (playerCard.getPokemonHealth() > computerCard.getPokemonHealth())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        private void update() // update user interface labels
+        {
+            Card playerCard = playerTeam.selectPlayerCard();
+            Card computerCard = computerTeam.selectComputerCard();
+            
+            if (computerCard != null && playerCard != null)
+            {
+                playerHealthLabel.Text = "Health: " + playerCard.getPokemonHealth();
+                computerHealthLabel.Text = "Health: " + computerCard.getPokemonHealth();
+                playerUsesLabel.Text = "Special Uses Left: " + playerCard.getSpecialAttackUse();
+                computerUsesLabel.Text = "Special Uses Left: " + computerCard.getSpecialAttackUse();
+                updateScoreLabel();
+                remainingLabel.Text = "Pokemon Remaining : " + computerTeam.getNumOfCards();
+                potionLabel.Text = "Potions Left: " + aBattle.getPotionNumber();
+            }
+            else
+            {
+                
+                computerHealthLabel.Text = "Health: 0";
+                //playerScore.countPokemon(playerTeam.getTeamCards());
+                //playerScore.setScore(playerScore.getScore() + (aBattle.getPotionNumber() * 100));
+                updateScoreLabel();
+                remainingLabel.Text = "Pokemon Remaining : " + computerTeam.getNumOfCards();
+                
+            }
+        }
+
+        private void updateScoreLabel()
+        {
+            scoreLabel.Text = "Score: " + playerScore.getScore();
+        }
+
+        private void checkGame() //Checks win condtions
+        {
+            if(computerTeam.getNumOfCards() == 0)
+            {
+                winnerLabel.Visible = true;
+                alterInterface(false);
+                timer.Stop();
+                timeToScore();
+                playerScore.countPokemon(playerTeam.getTeamCards());
+                playerScore.setScore(playerScore.getScore() + (aBattle.getPotionNumber() * 100));
+                updateScoreLabel();
+                n.ShowDialog();
+                Score newHS = new Score(playerScore.getScore(), n.getName());
+                hs.setScore(newHS);
+
+            }
+            else if(playerTeam.getNumOfCards() == 0)
+            {
+                defeatLabel.Visible = true;
+                alterInterface(false);
+                //Only input high score if win.
+            }
+        }
+
+        private void uiDefualt() //defualt UI for starting new game
+        {
+            
+            computerHealthLabel.Text = "Health: ";
+            playerHealthLabel.Text = "Health: ";
+            remainingLabel.Text = "Pokemon Remaining: ";
+            playerUsesLabel.Text = "Special Uses Left: ";
+            computerUsesLabel.Text = "Special Uses Left: ";
+            scoreLabel.Text = "Score: ";
+            potionLabel.Text = "Potions Left: ";
+        }
+
+        private void newMatchButton_Click(object sender, EventArgs e)
+        {
+            
+            alterInterface(true);
+            winnerLabel.Visible = false;
+            defeatLabel.Visible = false;
+            
+            DialogResult userAnswer = MessageBox.Show("Do you want to restart game?", "Restart?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (userAnswer == DialogResult.Yes)
+            {
+                
+                timerTick = 0;
+                startButton_Click(sender, e);
+                canvas.FillRectangle(Brushes.SkyBlue, 400, 260, 160, 240);
+                uiDefualt();
+                stopped = false;
+            }
+            
+            else if(userAnswer == DialogResult.No && (computerTeam.getNumOfCards() == 0 || playerTeam.getNumOfCards() == 0) || stopped == true)
+            {
+                alterInterface(false);
+            }
+            else
+            {
+                
+                return;
+            }
+            
+
+        }
+        
+
+        private void alterInterface(bool input) //sets all UI to either visiable or not visiable
+        {
+            if(input == true)
+            {
+                
+                battlefieldPictureBox.Visible = true;
+                playerPokemonLabel.Visible = true;
+                computerHealthLabel.Visible = true;
+                playerHealthLabel.Visible = true;
+                remainingLabel.Visible = true;
+                playerUsesLabel.Visible = true;
+                computerUsesLabel.Visible = true;
+                computerPokemonLabel.Visible = true;
+                baseAttackButton.Visible = true;
+                specialAttackButton.Visible = true;
+                pauseButton.Visible = true;
+                potionLabel.Visible = true;
+                usePotionButton.Visible = true;
+                viewHSButton.Visible = true;
+                newMatchButton.Visible = true;
+                timerLabel.Visible = true;
+                stopGameButton.Visible = true;
+                scoreLabel.Visible = true;
+            }
+            else if(input == false)
+            {
+                battlefieldPictureBox.Visible = false;
+                playerPokemonLabel.Visible = false;
+                computerHealthLabel.Visible = false;
+                playerHealthLabel.Visible = false;
+                remainingLabel.Visible = false;
+                playerUsesLabel.Visible = false;
+                computerUsesLabel.Visible = false;
+                computerPokemonLabel.Visible = false;
+                baseAttackButton.Visible = false;
+                specialAttackButton.Visible = false;
+                pauseButton.Visible = false;
+                usePotionButton.Visible = false;
+                potionLabel.Visible = false;
+                stopGameButton.Visible = false;
+                scoreLabel.Visible = false;
+                timerLabel.Visible = false;
+            }
+        }
+
+        private void pauseButton_Click(object sender, EventArgs e) 
+        {
+            timer.Stop();
+            DialogResult userAnswer = MessageBox.Show("The game is paused. Press OK to resume.", "Pause", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+           if(userAnswer == DialogResult.OK)
+            {
+                timer.Start();
+            }
+        }
+
+        private void viewHSButton_Click(object sender, EventArgs e) 
+        {
+            hs.ShowDialog();
+        }
+
+        private void usePotionButton_Click(object sender, EventArgs e) 
+        {
+            if (playerTeam.selectPlayerCard() != null && playerTeam.selectPlayerCard().getAvailable() == true)
+            {
+                aBattle.usePotion(playerTeam.selectPlayerCard());
+                update();
+            }
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            timerTick++;
+            timerLabel.Text = "Timer: " + timerTick.ToString();
+        }
+
+        private void timeToScore() //adds to score depending on how quickly you win the game
+        {
+            //Console.WriteLine(playerScore.getScore());
+            if(timerTick < 25)
+            {
+                playerScore.setScore(playerScore.getScore() + 700);
+                
+            }
+            else if(timerTick < 35)
+            {
+                playerScore.setScore(playerScore.getScore() + 570);
+                
+            }
+            else if(timerTick < 45)
+            {
+                playerScore.setScore(playerScore.getScore() + 450);
+                
+            }
+            else if(timerTick < 55)
+            {
+                playerScore.setScore(playerScore.getScore() + 350);
+                
+            }
+            else if(timerTick < 65)
+            {
+                playerScore.setScore(playerScore.getScore() + 170);
+               
+            }
+            else if (timerTick < 75)
+            {
+                playerScore.setScore(playerScore.getScore() + 100);
+                
+            }
+        }
+
+        private void gameRulesButton_Click(object sender, EventArgs e)
+        {
+            gr.ShowDialog();
+            
+        }
+
+        
+        private void stopGameButton_Click(object sender, EventArgs e)
+        {
+            timer.Stop();
+            DialogResult userAnswer = MessageBox.Show("Do you want to stop game?", "Stop?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            
+            if (userAnswer == DialogResult.Yes)
+            {
+                alterInterface(false);
+                timerTick = 0;
+                timer.Start();
+                stopped = true;
+            }
+            else
+            {
+                timer.Start();
+                return;
+            }
+        }
+    }
+
+    //Used to create and modify Card objects.
+    public class Card
+    {
+        private string pokemonName;
+        private string pokemonType;
+        private string specialAttackName; //not needed but i decided to keep it in because if i was to extend the game i could use this add status effects to special attacks
+        private int pokemonHealth;
+        private int baseAttackDmg;
+        private int specialAttackDmg;
+        private int specialAttackUse;
+        private Graphics canvas;
+        private int xCoordinate = 50;
+        private int yCoordinate = 520;
+        private int width = 160;
+        private int height = 240;
+        private bool isPlayed = false;
+        private bool available = true;
+        private bool computerIsPlayed = false;
+
+        public Card(Graphics g, string pokemonName, string pokemonType, int pokemonHealth, int baseAttackDmg, string specialAttackName, int specialAttackDmg, int specialAttackUse)
+        {
+            canvas = g;
+            this.pokemonName = pokemonName;
+            setPokemonType(pokemonType);
+            setPokemonHealth(pokemonHealth);
+            setBaseAttackDmg(baseAttackDmg);
+            this.specialAttackName = specialAttackName;
+            setSpecialAttackDmg(specialAttackDmg);
+            setSpecialAttackUse(specialAttackUse);
+        }
+
+        public void setPokemonType(string pokemonType)
+        {
+            if (pokemonType == "fire")
+            {
+                this.pokemonType = pokemonType;
+            }
+            else if (pokemonType == "water")
+            {
+                this.pokemonType = pokemonType;
+            }
+            else if (pokemonType == "grass")
+            {
+                this.pokemonType = pokemonType;
+            }
+            
+            
+        }
+
+        public void setPokemonHealth(int pokemonHealth)
+        {
+            if (pokemonHealth >= 0 && pokemonHealth <= 100) // min health 0 and max health 100
+            {
+                this.pokemonHealth = pokemonHealth;
+            }
+            else if(pokemonHealth > 100)
+            {
+                this.pokemonHealth = 100;
+            }
+            else
+            {
+                this.pokemonHealth = 0;
+            }
+        }
+
+        public void setBaseAttackDmg(int baseAttackDmg)
+        {
+            this.baseAttackDmg = baseAttackDmg;
+        }
+
+        public void setSpecialAttackDmg(int specialAttackDmg)
+        {
+            this.specialAttackDmg = specialAttackDmg;
+        }
+
+        public void setSpecialAttackUse(int specialAttackUse)
+        {
+            this.specialAttackUse = specialAttackUse;
+        }
+
+        public void setIsPlayed(bool isPlayed)
+        {
+            this.isPlayed = isPlayed;
+        }
+
+        public void setAvailable(bool isAvailable)
+        {
+            available = isAvailable;
+        }
+
+        public void setComputerIsPlayed(bool computerIsPlayed)
+        {
+            this.computerIsPlayed = computerIsPlayed;
+        }
+
+        public bool getIsPlayed()
+        {
+            return isPlayed;
+        }
+
+        public int getX()
+        {
+            return xCoordinate;
+        }
+        public int getY()
+        {
+            return yCoordinate;
+        }
+
+        public string getPokemonType()
+        {
+            return pokemonType;
+        }
+
+        public int getPokemonHealth()
+        {
+            return pokemonHealth;
+        }
+
+        public int getBaseAttackDmg()
+        {
+            return baseAttackDmg;
+        }
+
+        public int getSpecialAttackDmg()
+        {
+            return specialAttackDmg;
+        }
+
+        public int getSpecialAttackUse()
+        {
+            return specialAttackUse;
+        }
+        public string getPokemonName()
+        {
+            return pokemonName;
+        }
+
+        public bool getComputerIsPlayed()
+        {
+            return computerIsPlayed;
+        }
+
+        public bool getAvailable()
+        {
+            return available;
+        }
+
+        public void show() //displays card on screen.
+        {
+            canvas.FillRectangle(Brushes.SkyBlue, xCoordinate, yCoordinate, width, height);
+            if (getIsPlayed() && available)
+            {
+                canvas.DrawImage((Image)Properties.Resources.ResourceManager.GetObject(getPokemonName() + "Card"), 400, 260, width, height);
+            }
+            else
+            {
+                if (available )
+                {
+                    canvas.DrawImage((Image)Properties.Resources.ResourceManager.GetObject(getPokemonName() + "Card"), xCoordinate, yCoordinate, width, height);
+                }
+                else
+                {
+                    canvas.DrawImage(Properties.Resources.backCard, xCoordinate, yCoordinate, width, height);
+                }
+            }
+
+        }
+
+        public void showComputer()// displays computer card on screen.
+        {
+            if (getComputerIsPlayed())
+            {
+                canvas.DrawImage((Image)Properties.Resources.ResourceManager.GetObject(getPokemonName() + "Card"), 400, 0, width, height);
+            }
+        }
+
+        public void setPosition(int index)
+        {
+            xCoordinate = index * 170;
+        }
+
+        public Rectangle Space
+        {
+            get
+            {
+                return new Rectangle(xCoordinate, yCoordinate, width, height);
+            }
+        }
+    }
+
+    //The deck is used to hold all cards, shuffle and deal cards to both teams 
+    class Deck
+    {
+        
+        private int cardMarker;
+        private Card[] cards;
+        Random random = new Random();
+
+        public Deck(int numberOfCards)
+        {
+            cards = new Card[numberOfCards];
+            setCardMarker();
+        }
+
+        public void setCardMarker()
+        {
+            cardMarker = 0;
+        }
+
+
+        public void addCard(Card aCard) 
+        {
+            for (int index = 0; index < cards.Length; index++)
+            {
+                if (cards[index] == null)
+                {
+                    cards[index] = aCard;
+                    return;
+                }
+            }
+        }
+
+        public Card grabNextCard() //grabs next avaliable card in deck
+        {
+
+            for (int index = 0; index < cards.Length; index++)
+            {
+                if (cards[index] == cards[cardMarker])
+                {
+                    Card topCard = cards[index];
+                    cardMarker++;
+                    return topCard;
+                }
+            }
+            return null;
+        }
+
+        public void shuffleCards() 
+        {
+
+            for (int index = 0; index < 2 * cards.Length; index++)
+            {
+                Card temp = cards[0];
+                int randomIndex = random.Next(1, cards.Length);
+                cards[0] = cards[randomIndex];
+                cards[randomIndex] = temp;
+            }
+        }
+
+        public void dealCards(Card[] teamCards) //deals out 6 cards to a team
+        {
+
+            for (int index = 0; index < teamCards.Length; index++)
+            {
+                if (teamCards[index] == null)
+                {
+
+                    teamCards[index] = grabNextCard();
+                    teamCards[index].setPosition(index);
+                }
+            }
+        }
+
+
+    }
+
+    /*There 2 Teams one for the player and one for the computer. 
+      The teams are filled with cards that you can use for that game.
+      Each team has 6 cards.
+      Used to usually display the players team.
+      */
+    class Team
+    {
+        private int numOfCards;
+        private Card[] teamCards;
+
+        public Team()
+        {
+            teamCards = new Card[6];
+            setNumOfCards();
+        }
+
+        public Card[] getTeamCards()
+        {
+            return teamCards;
+        }
+
+        public void setNumOfCards()
+        {
+            numOfCards = 0;
+        }
+
+        public int getNumOfCards() //returns amount of cards remaining in a team
+        {
+            setNumOfCards();
+            for (int index = 0; index < teamCards.Length; index++)
+            {
+                if (teamCards[index].getPokemonHealth() > 0)
+                {
+                    numOfCards++;
+                }
+            }
+            return numOfCards;
+        }
+
+
+        public void showTeam() //displays the entire player team.
+        {
+            for (int index = 0; index < teamCards.Length; index++)
+            {
+                if (teamCards[index] != null)
+                {
+                    teamCards[index].show();
+                }
+            }
+        }
+
+        public Card selectComputerCard()//returns computers card in play.
+        {
+            for(int index = 0; index < teamCards.Length; index++)
+            {
+                if(teamCards[index].getPokemonHealth() > 0)
+                {
+                    
+                    return teamCards[index];
+                }
+            }
+            return null;
+        }
+
+        public void nextComputer()//goes through the team and if health is over 0 then it becomes the next computer card to be played.
+        {
+            for (int index = 0; index < teamCards.Length; index++)
+            {
+
+                if (teamCards[index].getPokemonHealth() > 0)
+                {
+                    teamCards[index].setComputerIsPlayed(true);
+                    teamCards[index].showComputer();
+                    return;
+                }
+            }
+       
+        }
+
+        public Card selectPlayerCard() //return the players card that is currently in play.
+        {
+            
+            for (int index = 0; index < teamCards.Length; index++)
+            {
+                if (teamCards[index].getIsPlayed())
+                {
+                    return teamCards[index];
+                }
+            }
+            return null;
+        }
+
+    }
+
+    //The round class deals with type advantages and controls damage outputs
+    class Battle
+    {
+        
+        private int potionNumber;
+        
+        public Battle()
+        {
+            setPotionNumber(2);
+        }
+
+
+        public void setPotionNumber(int potionNumber)
+        {
+            if (potionNumber > 0)
+            {
+                this.potionNumber = potionNumber;
+                //Console.WriteLine(potionNumber); testing
+            }
+            else
+            {
+                this.potionNumber = 0;
+                //Console.WriteLine(potionNumber); testing
+            }
+        }
+
+        public int getPotionNumber()
+        {
+            return potionNumber;
+        }
+
+      
+        public bool checkAdvantage(Card attacker, Card defender) //checks if there is a type advantage
+        {
+            
+            if (attacker.getPokemonType() == "water" && defender.getPokemonType() == "fire")
+            {
+                return true;
+
+            }
+            else if (attacker.getPokemonType() == "fire" && defender.getPokemonType() == "grass")
+            {
+                return true;
+
+            }
+            else if (attacker.getPokemonType() == "grass" && defender.getPokemonType() == "water")
+            {
+                return true;
+
+            }
+            return false;
+        }
+
+   
+
+        public void damageTaken(string typeOfAttack, Card attacker, Card defender) //deals damage depending on the type of attack
+        {
+            if (typeOfAttack == "special")
+            {
+                if (attacker.getSpecialAttackUse() > 0)
+                {
+                    int dmgDealt = attacker.getSpecialAttackDmg();
+                    int defenderHealth = defender.getPokemonHealth();
+                    int newDefenderHealth = defenderHealth - dmgDealt;
+                    defender.setPokemonHealth(newDefenderHealth);
+                    attacker.setSpecialAttackUse(attacker.getSpecialAttackUse() - 1);
+
+                    //deals extra damage if type advantange
+                    if (checkAdvantage(attacker, defender))
+                    {
+                        defender.setPokemonHealth(newDefenderHealth - 15);
+
+                    }
+                    
+                }
+                else
+                {
+                    typeOfAttack = "basic";
+                }
+            }
+
+
+            if (typeOfAttack == "basic")
+            {
+                int dmgDealt = attacker.getBaseAttackDmg();
+                int defenderHealth = defender.getPokemonHealth();
+                int newDefenderHealth = defenderHealth - dmgDealt;
+                defender.setPokemonHealth(newDefenderHealth);
+
+                //deals extra damage if type advantange
+                if (checkAdvantage(attacker, defender))
+                {
+                    defender.setPokemonHealth(newDefenderHealth - 15);
+
+                }
+            }
+
+        }
+
+        public void usePotion(Card pokemon) //uses potions and adds 30 health to current pokemon
+        {
+            if (potionNumber > 0)
+            {
+                pokemon.setPokemonHealth(pokemon.getPokemonHealth() + 30);
+                setPotionNumber(potionNumber - 1);
+                Console.WriteLine(potionNumber);
+            }
+        }
+
+
+    }
+
+
+    //Deals with players score.
+    public class Score : IComparable
+    {
+        private int score;
+        private int alive;
+        private string name;
+
+        public Score(int score, string name)
+        {
+            setScore(score);
+            setName(name);
+            setAlive();
+        }
+
+        public void setName(string name)
+        {
+            this.name = name;
+        }
+
+        public string getName()
+        {
+            return name;
+        }
+
+        public void setScore(int score)
+        {
+
+            if (score > 0)
+            {
+                this.score = score;
+            }
+            else
+            {
+                score = 0;
+            }
+        }
+
+        public void setAlive()
+        {
+            alive = 0;
+        }
+
+        public int getScore()
+        {
+            return score;
+        }
+
+        public int getAlive()
+        {
+            return alive * 10;
+        }
+
+        public void countPokemon(Card[] playerTeam) //checks how many pokemon are left in players team.
+        {
+            
+            for(int index = 0; index < playerTeam.Length; index++)
+            {
+                if(playerTeam[index].getPokemonHealth() > 0)
+                {
+                    alive++;
+                    setScore(score + 100);
+                }
+            }
+        }
+
+
+        public int CompareTo(Object HighScore)
+        {
+            if(getScore() < ((Score)HighScore).getScore())
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+
+    //orignal code no longer used
+
+    //private void attack(string typeOfAttack) //old attack on button click method
+    //{
+
+    //    if (playerTeam.selectPlayerCard() != null && computerTeam.selectComputerCard() != null)
+    //    {
+    //        int score = playerScore.getScore();
+    //        Card playerCard = playerTeam.selectPlayerCard();
+    //        Card computerCard = computerTeam.selectComputerCard();
+
+    //        if (playerCard.getPokemonHealth() < computerCard.getPokemonHealth())//computer attacks first
+    //        {
+    //            aBattle.damageTaken(typeOfAttack, computerCard, playerCard);
+    //            update();
+    //            playerTeam.showTeam();
+    //            computerTeam.nextComputer();
+    //            if (playerCard.getPokemonHealth() > 0)
+    //            {
+    //                aBattle.damageTaken(typeOfAttack, playerCard, computerCard);
+    //                update();
+    //                playerTeam.showTeam();
+    //                computerTeam.nextComputer();
+    //                if (computerCard.getPokemonHealth() <= 0)
+    //                {
+    //                    computerCard.setAvailable(false);
+
+    //                    if (aBattle.checkAdvantage(playerCard, computerCard))
+    //                    {
+    //                        playerScore.setScore(score + 150);
+    //                    }
+    //                    else
+    //                    {
+    //                        playerScore.setScore(score + 100);
+    //                    }
+    //                    update();
+    //                }
+    //            }
+    //            else
+    //            {
+    //                playerCard.setAvailable(false);
+    //            }
+    //        }
+    //        else //player attacks first
+    //        {
+    //            aBattle.damageTaken(typeOfAttack, playerCard, computerCard);
+    //            update();
+    //            playerTeam.showTeam();
+    //            computerTeam.nextComputer();
+    //            if (computerCard.getPokemonHealth() > 0)
+    //            {
+    //                aBattle.damageTaken(typeOfAttack, computerCard, playerCard);
+    //                update();
+    //                playerTeam.showTeam();
+    //                computerTeam.nextComputer();
+    //                if (playerCard.getPokemonHealth() <= 0)
+    //                {
+    //                    //endround
+    //                    playerCard.setAvailable(false);
+    //                }
+    //            }
+    //            else
+    //            {
+    //                playerScore.setScore(score + 100);
+    //                computerCard.setAvailable(false);
+    //                computerCard.setIsPlayed(false);
+    //                if (aBattle.checkAdvantage(playerCard, computerCard))
+    //                {
+    //                    playerScore.setScore(score + 150);
+    //                }
+    //                update();
+    //            }
+    //        }
+    //    }
+
+    //}
+
+    //public void basicDamageTaken(Card attacker, Card defender) //old basic attack method
+    //{
+
+    //    int dmgDealt = attacker.getBaseAttackDmg();
+    //    int defenderHealth = defender.getPokemonHealth();
+    //    int newDefenderHealth = defenderHealth - dmgDealt;
+    //    defender.setPokemonHealth(newDefenderHealth);
+
+    //    //deals extra damage if type advantange
+    //    if (checkAdvantage(attacker, defender))
+    //    {
+    //        defender.setPokemonHealth(newDefenderHealth - 15);
+
+    //    }
+
+    //}
+
+    //public void specialDamageTaken(Card attacker, Card defender) // old special damage taken method
+    //{
+
+
+    //    if (attacker.getSpecialAttackUse() > 0)
+    //    {
+    //        int dmgDealt = attacker.getSpecialAttackDmg();
+    //        int defenderHealth = defender.getPokemonHealth();
+    //        int newDefenderHealth = defenderHealth - dmgDealt;
+    //        defender.setPokemonHealth(newDefenderHealth);
+    //        attacker.setSpecialAttackUse(attacker.getSpecialAttackUse() - 1);
+
+
+    //        //deals extra damage if type advantange
+    //        if (attacker.getPokemonType() == "water" && defender.getPokemonType() == "fire")
+    //        {
+    //            defender.setPokemonHealth(newDefenderHealth - 15);
+
+    //        }
+    //        else if (attacker.getPokemonType() == "fire" && defender.getPokemonType() == "grass")
+    //        {
+    //            defender.setPokemonHealth(newDefenderHealth - 15);
+
+    //        }
+    //        else if (attacker.getPokemonType() == "grass" && defender.getPokemonType() == "water")
+    //        {
+    //            defender.setPokemonHealth(newDefenderHealth - 15);
+
+    //        }
+    //    }
+    //    else
+    //    {
+    //        basicDamageTaken(attacker, defender);
+    //    }
+
+
+    //}
+
+}
+
+
+
